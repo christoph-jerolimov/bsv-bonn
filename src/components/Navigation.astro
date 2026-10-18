@@ -1,0 +1,339 @@
+---
+import { navigation } from '@/data/navigation';
+import { href, normalizePath } from '@/lib/paths';
+
+interface Props {
+  currentPath: string;
+}
+
+const { currentPath } = Astro.props;
+const current = normalizePath(currentPath);
+
+function isActive(path: string): boolean {
+  return current === normalizePath(path);
+}
+
+function isSectionActive(path: string, children?: { path: string }[]): boolean {
+  return isActive(path) || (children ?? []).some((child) => isActive(child.path));
+}
+---
+
+<nav class="main-nav" aria-label="Hauptnavigation" data-main-nav>
+  <div class="container main-nav__inner">
+    <button
+      type="button"
+      class="main-nav__toggle"
+      aria-expanded="false"
+      aria-controls="main-menu"
+      data-nav-toggle
+    >
+      <span class="main-nav__toggle-icon" aria-hidden="true"></span>
+      Menü
+    </button>
+    <ul class="main-nav__list" id="main-menu" data-nav-menu>
+      {navigation.map((item) =>
+        item.children ? (
+          <li class="main-nav__item main-nav__item--has-children" data-nav-item>
+            <a
+              href={href(item.path)}
+              class="main-nav__link"
+              aria-current={isActive(item.path) ? 'page' : undefined}
+              data-active={isSectionActive(item.path, item.children) ? 'true' : undefined}
+            >
+              {item.title}
+            </a>
+            <button
+              type="button"
+              class="main-nav__submenu-toggle"
+              aria-expanded="false"
+              data-submenu-toggle
+            >
+              <span class="visually-hidden">Untermenü {item.title} öffnen</span>
+              <span class="main-nav__chevron" aria-hidden="true"></span>
+            </button>
+            <ul class="main-nav__submenu" data-submenu>
+              {item.children.map((child) => (
+                <li>
+                  <a
+                    href={href(child.path)}
+                    class="main-nav__sublink"
+                    aria-current={isActive(child.path) ? 'page' : undefined}
+                  >
+                    {child.title}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </li>
+        ) : (
+          <li class="main-nav__item">
+            <a
+              href={href(item.path)}
+              class="main-nav__link"
+              aria-current={isActive(item.path) ? 'page' : undefined}
+              data-active={isActive(item.path) ? 'true' : undefined}
+            >
+              {item.title}
+            </a>
+          </li>
+        ),
+      )}
+    </ul>
+  </div>
+</nav>
+
+<script>
+  /**
+   * Progressive enhancement for the navigation:
+   * - a "Menü" button opens and closes the list on small screens
+   * - submenus open on hover/focus (CSS) and via toggle button (keyboard, touch)
+   */
+  function setupNavigation(nav: HTMLElement): void {
+    const toggle = nav.querySelector<HTMLButtonElement>('[data-nav-toggle]');
+    const menu = nav.querySelector<HTMLElement>('[data-nav-menu]');
+    if (toggle && menu) {
+      toggle.addEventListener('click', () => {
+        const open = toggle.getAttribute('aria-expanded') === 'true';
+        toggle.setAttribute('aria-expanded', String(!open));
+        menu.classList.toggle('is-open', !open);
+      });
+    }
+
+    const items = nav.querySelectorAll<HTMLElement>('[data-nav-item]');
+    for (const item of items) {
+      const button = item.querySelector<HTMLButtonElement>('[data-submenu-toggle]');
+      if (!button) {
+        continue;
+      }
+      button.addEventListener('click', () => {
+        const open = button.getAttribute('aria-expanded') === 'true';
+        closeAll(items, item);
+        button.setAttribute('aria-expanded', String(!open));
+        item.classList.toggle('is-open', !open);
+      });
+    }
+
+    document.addEventListener('click', (event) => {
+      if (!(event.target instanceof Node) || nav.contains(event.target)) {
+        return;
+      }
+      closeAll(items);
+    });
+
+    nav.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape') {
+        closeAll(items);
+      }
+    });
+  }
+
+  function closeAll(items: NodeListOf<HTMLElement>, except?: HTMLElement): void {
+    for (const item of items) {
+      if (item === except) {
+        continue;
+      }
+      item.classList.remove('is-open');
+      item.querySelector('[data-submenu-toggle]')?.setAttribute('aria-expanded', 'false');
+    }
+  }
+
+  for (const nav of document.querySelectorAll<HTMLElement>('[data-main-nav]')) {
+    setupNavigation(nav);
+  }
+</script>
+
+<style>
+  .main-nav {
+    background: var(--color-primary);
+    color: #fff;
+  }
+
+  .main-nav__inner {
+    position: relative;
+  }
+
+  .main-nav__toggle {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    width: 100%;
+    padding: 0.75rem 0;
+    font: inherit;
+    font-weight: 700;
+    color: #fff;
+    background: none;
+    border: 0;
+    cursor: pointer;
+  }
+
+  .main-nav__toggle-icon,
+  .main-nav__toggle-icon::before,
+  .main-nav__toggle-icon::after {
+    display: block;
+    width: 1.5rem;
+    height: 0.2rem;
+    background: currentcolor;
+    border-radius: 2px;
+  }
+
+  .main-nav__toggle-icon {
+    position: relative;
+  }
+
+  .main-nav__toggle-icon::before,
+  .main-nav__toggle-icon::after {
+    content: '';
+    position: absolute;
+    left: 0;
+  }
+
+  .main-nav__toggle-icon::before {
+    top: -0.5rem;
+  }
+
+  .main-nav__toggle-icon::after {
+    top: 0.5rem;
+  }
+
+  .main-nav__list {
+    display: none;
+    list-style: none;
+    margin: 0;
+    padding: 0 0 0.5rem;
+  }
+
+  .main-nav__list.is-open {
+    display: block;
+  }
+
+  .main-nav__item {
+    position: relative;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: stretch;
+  }
+
+  .main-nav__link {
+    flex: 1;
+    display: block;
+    padding: 0.75rem 0.5rem;
+    color: #fff;
+    font-weight: 700;
+    text-decoration: none;
+    border-left: 0.3rem solid transparent;
+  }
+
+  .main-nav__link:hover,
+  .main-nav__link:focus-visible,
+  .main-nav__link[data-active='true'] {
+    color: #fff;
+    background: var(--color-primary-dark);
+    border-left-color: var(--color-accent);
+  }
+
+  .main-nav__link[aria-current='page'] {
+    text-decoration: underline;
+    text-decoration-thickness: 0.15em;
+    text-underline-offset: 0.25em;
+  }
+
+  .main-nav__submenu-toggle {
+    width: 3rem;
+    color: #fff;
+    background: none;
+    border: 0;
+    cursor: pointer;
+  }
+
+  .main-nav__chevron {
+    display: inline-block;
+    width: 0.6rem;
+    height: 0.6rem;
+    border-right: 0.2rem solid currentcolor;
+    border-bottom: 0.2rem solid currentcolor;
+    transform: rotate(45deg);
+    transition: transform 0.15s;
+  }
+
+  .main-nav__item.is-open .main-nav__chevron {
+    transform: rotate(225deg);
+  }
+
+  .main-nav__submenu {
+    display: none;
+    flex-basis: 100%;
+    list-style: none;
+    margin: 0;
+    padding: 0 0 0.5rem 1rem;
+  }
+
+  .main-nav__item.is-open .main-nav__submenu {
+    display: block;
+  }
+
+  .main-nav__sublink {
+    display: block;
+    padding: 0.5rem 0.75rem;
+    color: #fff;
+    text-decoration: none;
+  }
+
+  .main-nav__sublink:hover,
+  .main-nav__sublink:focus-visible,
+  .main-nav__sublink[aria-current='page'] {
+    color: var(--color-text);
+    background: var(--color-accent);
+  }
+
+  @media (min-width: 60rem) {
+    .main-nav__toggle {
+      display: none;
+    }
+
+    .main-nav__list {
+      display: flex;
+      flex-wrap: wrap;
+      padding: 0;
+    }
+
+    .main-nav__item {
+      flex-wrap: nowrap;
+    }
+
+    .main-nav__link {
+      padding: 0.9rem 1rem;
+      border-left: 0;
+      border-bottom: 0.3rem solid transparent;
+    }
+
+    .main-nav__link:hover,
+    .main-nav__link:focus-visible,
+    .main-nav__link[data-active='true'] {
+      border-bottom-color: var(--color-accent);
+    }
+
+    .main-nav__submenu-toggle {
+      width: 2rem;
+    }
+
+    .main-nav__submenu {
+      position: absolute;
+      top: 100%;
+      left: 0;
+      z-index: 20;
+      min-width: 16rem;
+      padding: 0.5rem 0;
+      background: var(--color-primary-dark);
+      box-shadow: 0 4px 12px rgb(0 0 0 / 25%);
+    }
+
+    .main-nav__item--has-children:hover .main-nav__submenu,
+    .main-nav__item--has-children:focus-within .main-nav__submenu {
+      display: block;
+    }
+
+    .main-nav__sublink {
+      padding: 0.6rem 1rem;
+    }
+  }
+</style>

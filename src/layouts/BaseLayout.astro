@@ -1,0 +1,46 @@
+---
+import '@/styles/global.css';
+
+import Footer from '@/components/Footer.astro';
+import Header from '@/components/Header.astro';
+import { site } from '@/data/site';
+import { href } from '@/lib/paths';
+
+interface Props {
+  title: string;
+  description?: string;
+  currentPath: string;
+}
+
+const { title, description = site.description, currentPath } = Astro.props;
+const pageTitle =
+  currentPath === '/' ? `${site.name} – ${site.organisation}` : `${title} – ${site.name}`;
+const canonical = Astro.site ? new URL(href(currentPath), Astro.site).toString() : undefined;
+---
+
+<!doctype html>
+<html lang={site.language}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{pageTitle}</title>
+    <meta name="description" content={description} />
+    <meta name="generator" content={Astro.generator} />
+    <meta name="theme-color" content="#004b87" />
+    {canonical && <link rel="canonical" href={canonical} />}
+    <link rel="icon" href={href('/favicon.svg')} type="image/svg+xml" />
+    <link rel="sitemap" href={href('/sitemap-index.xml')} />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content={pageTitle} />
+    <meta property="og:description" content={description} />
+    <meta property="og:locale" content="de_DE" />
+  </head>
+  <body>
+    <a class="skip-link" href="#inhalt">
+      Zum Inhalt springen
+    </a>
+    <Header currentPath={currentPath} />
+    <slot />
+    <Footer />
+  </body>
+</html>

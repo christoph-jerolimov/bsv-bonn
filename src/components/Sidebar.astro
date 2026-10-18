@@ -1,0 +1,100 @@
+---
+import { getCollection } from 'astro:content';
+
+import { site } from '@/data/site';
+import { formatShortDate, isUpcoming, toIsoDate } from '@/lib/dates';
+import { href } from '@/lib/paths';
+
+const today = new Date();
+const upcoming = (await getCollection('termine'))
+  .filter((event) => isUpcoming(event.data, today))
+  .sort((a, b) => a.data.date.getTime() - b.data.date.getTime())
+  .slice(0, 4);
+---
+
+<aside class="sidebar" aria-label="Kontakt und Termine">
+  <section class="box">
+    <h2 class="box__title">Kontakt</h2>
+    <address>
+      <strong>{site.organisation}</strong>
+      <br />
+      {site.address.street}
+      <br />
+      {site.address.zip} {site.address.city}
+    </address>
+    <p>
+      Telefon: <a href={site.phoneHref}>{site.phone}</a>
+      <br />
+      Infotelefon: <a href={site.infoPhoneHref}>{site.infoPhone}</a>
+      <br />
+      E-Mail: <a href={`mailto:${site.email}`}>{site.email}</a>
+    </p>
+    <h3 class="sidebar__subheading">Bürosprechzeiten</h3>
+    <ul class="sidebar__hours">
+      {site.officeHours.map((slot) => (
+        <li>
+          {slot.day}: {slot.time}
+        </li>
+      ))}
+      <li>{site.officeHoursNote}</li>
+    </ul>
+  </section>
+
+  <section class="box box--accent">
+    <h2 class="box__title">Nächste Termine</h2>
+    {upcoming.length > 0 ? (
+      <ul class="sidebar__events">
+        {upcoming.map((event) => (
+          <li>
+            <time datetime={toIsoDate(event.data.date)}>{formatShortDate(event.data.date)}</time>
+            <br />
+            {event.data.title}
+            {event.data.intern && ' *'}
+          </li>
+        ))}
+      </ul>
+    ) : (
+      <p>Zurzeit sind keine Termine eingetragen.</p>
+    )}
+    <p>
+      <a href={href('/aktuelles/veranstaltungen')}>Alle Veranstaltungen</a>
+    </p>
+  </section>
+
+  <section class="box">
+    <h2 class="box__title">Spenden</h2>
+    <p>
+      {site.donation.bank}
+      <br />
+      IBAN: {site.donation.iban}
+      <br />
+      BIC: {site.donation.bic}
+    </p>
+    <p>
+      <a href={href('/wir/spenden')}>Mehr zum Thema Spenden</a>
+    </p>
+  </section>
+</aside>
+
+<style>
+  .sidebar__subheading {
+    font-size: 1rem;
+    margin: 1rem 0 0.25rem;
+  }
+
+  .sidebar__hours,
+  .sidebar__events {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  .sidebar__events li + li {
+    margin-top: 0.75rem;
+  }
+
+  .sidebar__events time {
+    font-weight: 700;
+    color: var(--color-primary-dark);
+  }
+</style>

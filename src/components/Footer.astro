@@ -1,0 +1,107 @@
+---
+import { footerNavigation } from '@/data/navigation';
+import { site } from '@/data/site';
+import { href } from '@/lib/paths';
+
+const year = new Date().getFullYear();
+---
+
+<footer class="site-footer">
+  <div class="container site-footer__inner">
+    <div class="site-footer__column">
+      <h2 class="site-footer__heading">{site.organisation}</h2>
+      <address>
+        {site.address.street}
+        <br />
+        {site.address.zip} {site.address.city}
+        <br />
+        Telefon: <a href={site.phoneHref}>{site.phone}</a>
+        <br />
+        Infotelefon: <a href={site.infoPhoneHref}>{site.infoPhone}</a>
+        <br />
+        E-Mail: <a href={`mailto:${site.email}`}>{site.email}</a>
+      </address>
+    </div>
+    <div class="site-footer__column">
+      <h2 class="site-footer__heading">Bürosprechzeiten</h2>
+      <ul class="site-footer__hours">
+        {site.officeHours.map((slot) => (
+          <li>
+            {slot.day}: {slot.time}
+          </li>
+        ))}
+        <li>{site.officeHoursNote}</li>
+      </ul>
+    </div>
+    <div class="site-footer__column">
+      <h2 class="site-footer__heading">Service</h2>
+      <ul class="site-footer__links">
+        {footerNavigation.map((item) => (
+          <li>
+            <a href={href(item.path)}>{item.title}</a>
+          </li>
+        ))}
+      </ul>
+    </div>
+  </div>
+  <div class="container site-footer__bottom">
+    <p>
+      {`© ${year} ${site.organisation}`} · Mitglied im Blinden- und Sehbehindertenverband Nordrhein
+      e.V. (BSVN) und im Deutschen Blinden- und Sehbehindertenverband e.V. (DBSV)
+    </p>
+  </div>
+</footer>
+
+<style>
+  .site-footer {
+    margin-top: auto;
+    background: var(--color-primary-dark);
+    color: #fff;
+    border-top: 0.4rem solid var(--color-accent);
+  }
+
+  .site-footer a {
+    color: #fff;
+  }
+
+  .site-footer a:hover {
+    color: var(--color-accent);
+  }
+
+  .site-footer__inner {
+    display: grid;
+    gap: 1.5rem;
+    padding-top: 2rem;
+    padding-bottom: 1rem;
+  }
+
+  @media (min-width: 48rem) {
+    .site-footer__inner {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+
+  .site-footer__heading {
+    font-size: 1.1rem;
+    color: var(--color-accent);
+    margin: 0 0 0.5rem;
+  }
+
+  .site-footer__hours,
+  .site-footer__links {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  .site-footer__bottom {
+    font-size: 0.9rem;
+    border-top: 1px solid rgb(255 255 255 / 25%);
+    padding-top: 1rem;
+    padding-bottom: 1rem;
+  }
+
+  .site-footer__bottom p {
+    margin: 0;
+  }
+</style>

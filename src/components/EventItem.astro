@@ -1,0 +1,34 @@
+---
+import type { CollectionEntry } from 'astro:content';
+import { render } from 'astro:content';
+
+import { formatDateRange, toIsoDate } from '@/lib/dates';
+
+interface Props {
+  event: CollectionEntry<'termine'>;
+  headingLevel?: 'h2' | 'h3';
+}
+
+const { event, headingLevel = 'h3' } = Astro.props;
+const Heading = headingLevel;
+const { Content } = await render(event);
+const { data } = event;
+---
+
+<li class="event">
+  <time class="event__date" datetime={toIsoDate(data.date)}>
+    {formatDateRange(data.date, data.endDate)}
+  </time>
+  <Heading class="event__title">
+    {data.title}
+    {data.intern && <span class="event__intern">vereinsintern *</span>}
+  </Heading>
+  <ul class="event__details">
+    {data.time && <li>Uhrzeit: {data.time}</li>}
+    {data.location && <li>Ort: {data.location}</li>}
+    {data.registration && <li>Anmeldung: {data.registration}</li>}
+  </ul>
+  <div class="content">
+    <Content />
+  </div>
+</li>

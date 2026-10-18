@@ -1,0 +1,37 @@
+---
+import { getCollection } from 'astro:content';
+
+import { isUpcoming } from '@/lib/dates';
+import EventItem from './EventItem.astro';
+
+interface Props {
+  /** `upcoming` lists events that have not passed yet, `past` the others. */
+  mode: 'upcoming' | 'past';
+  limit?: number;
+  headingLevel?: 'h2' | 'h3';
+  emptyMessage?: string;
+}
+
+const { mode, limit, headingLevel = 'h3', emptyMessage } = Astro.props;
+const today = new Date();
+
+const all = await getCollection('termine');
+const filtered = all
+  .filter((event) => isUpcoming(event.data, today) === (mode === 'upcoming'))
+  .sort((a, b) =>
+    mode === 'upcoming'
+      ? a.data.date.getTime() - b.data.date.getTime()
+      : b.data.date.getTime() - a.data.date.getTime(),
+  );
+const events = limit ? filtered.slice(0, limit) : filtered;
+---
+
+{events.length > 0 ? (
+  <ul class="event-list">
+    {events.map((event) => (
+      <EventItem event={event} headingLevel={headingLevel} />
+    ))}
+  </ul>
+) : (
+  <p>{emptyMessage ?? 'Zurzeit sind keine Termine eingetragen.'}</p>
+)}

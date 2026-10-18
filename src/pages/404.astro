@@ -1,0 +1,14 @@
+---
+import PageLayout from '@/layouts/PageLayout.astro';
+import { href } from '@/lib/paths';
+---
+
+<PageLayout title="Seite nicht gefunden" currentPath="/404" hideSidebar={true}>
+  <div class="content">
+    <p>Die gewünschte Seite existiert nicht oder wurde verschoben.</p>
+    <p>
+      <a href={href('/')}>Zur Startseite</a> · <a href={href('/aktuelles')}>Aktuelles</a> ·
+      <a href={href('/rat-und-hilfe')}>Rat und Hilfe</a>
+    </p>
+  </div>
+</PageLayout>

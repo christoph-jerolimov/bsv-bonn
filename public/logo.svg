@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64" role="img" aria-label="Logo BSV Bonn/Rhein-Sieg">
+  <rect width="64" height="64" rx="10" fill="#004b87"/>
+  <circle cx="32" cy="30" r="15" fill="none" stroke="#ffcc00" stroke-width="4"/>
+  <circle cx="32" cy="30" r="5" fill="#ffcc00"/>
+  <path d="M10 30c6-10 14-15 22-15s16 5 22 15c-6 10-14 15-22 15S16 40 10 30z" fill="none" stroke="#ffffff" stroke-width="3"/>
+  <text x="32" y="58" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="12" font-weight="700" fill="#ffffff">BSV</text>
+</svg>

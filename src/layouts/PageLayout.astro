@@ -1,0 +1,32 @@
+---
+import Breadcrumbs from '@/components/Breadcrumbs.astro';
+import Sidebar from '@/components/Sidebar.astro';
+import { formatShortDate, toIsoDate } from '@/lib/dates';
+import BaseLayout from './BaseLayout.astro';
+
+interface Props {
+  title: string;
+  description?: string;
+  currentPath: string;
+  updated?: Date;
+  hideSidebar?: boolean;
+}
+
+const { title, description, currentPath, updated, hideSidebar = false } = Astro.props;
+---
+
+<BaseLayout title={title} description={description} currentPath={currentPath}>
+  <div class:list={['container', 'page', { 'page--with-sidebar': !hideSidebar }]}>
+    <main id="inhalt" class="page__main" tabindex="-1">
+      <Breadcrumbs currentPath={currentPath} currentTitle={title} />
+      <h1>{title}</h1>
+      {updated && (
+        <p class="page__meta">
+          Stand: <time datetime={toIsoDate(updated)}>{formatShortDate(updated)}</time>
+        </p>
+      )}
+      <slot />
+    </main>
+    {!hideSidebar && <Sidebar />}
+  </div>
+</BaseLayout>

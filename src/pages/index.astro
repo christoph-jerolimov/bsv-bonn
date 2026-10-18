@@ -1,0 +1,113 @@
+---
+import { getEntry, render } from 'astro:content';
+
+import EventList from '@/components/EventList.astro';
+import { navigation } from '@/data/navigation';
+import { site } from '@/data/site';
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import Sidebar from '@/components/Sidebar.astro';
+import { href } from '@/lib/paths';
+
+const page = await getEntry('pages', 'index');
+if (!page) {
+  throw new Error('The home page `src/content/pages/index.md` is missing.');
+}
+const { Content } = await render(page);
+
+const sections = navigation.filter((item) => item.path !== '/' && item.children);
+const teasers: Record<string, string> = {
+  '/aktuelles': 'Veranstaltungen, ständige Termine, Sportangebote und Neuigkeiten aus dem Verein.',
+  '/wir': 'Vorstand, Mitgliedschaft, Spenden, Vereinsgeschichte und Impressum.',
+  '/rat-und-hilfe':
+    'Beratung zu Mobilität, Hilfsmitteln, Begleitung, Nachteilsausgleichen und Rechtsfragen.',
+};
+---
+
+<BaseLayout title={page.data.title} description={page.data.description} currentPath="/">
+  <section class="hero">
+    <div class="container hero__inner">
+      <h1 class="hero__title">{site.organisation}</h1>
+      <p class="hero__text">
+        Selbsthilfe von und für blinde und sehbehinderte Menschen in Bonn, im Rhein-Sieg-Kreis und
+        im Kreis Euskirchen – seit {site.founded}.
+      </p>
+      <p class="hero__actions">
+        <a class="button" href={href('/rat-und-hilfe')}>
+          Rat und Hilfe
+        </a>
+        <a class="button button--primary" href={href('/wir/mitglied-werden')}>
+          Mitglied werden
+        </a>
+      </p>
+    </div>
+  </section>
+
+  <div class="container page page--with-sidebar">
+    <main id="inhalt" class="page__main" tabindex="-1">
+      <div class="content">
+        <Content />
+      </div>
+
+      <h2>Unsere Bereiche</h2>
+      <ul class="card-grid">
+        {sections.map((section) => (
+          <li class="card">
+            <h3>
+              <a href={href(section.path)}>{section.title}</a>
+            </h3>
+            <p>{teasers[section.path]}</p>
+          </li>
+        ))}
+        <li class="card">
+          <h3>
+            <a href={href('/aktiv-bleiben')}>Aktiv bleiben</a>
+          </h3>
+          <p>Reisen, Sport, Kultur, Medien und Spiele – Anregungen für die Freizeit.</p>
+        </li>
+      </ul>
+
+      <h2>Nächste Veranstaltungen</h2>
+      <EventList mode="upcoming" limit={3} headingLevel="h3" />
+      <p>
+        <a href={href('/aktuelles/veranstaltungen')}>Alle Veranstaltungen ansehen</a>
+      </p>
+    </main>
+    <Sidebar />
+  </div>
+</BaseLayout>
+
+<style>
+  .hero {
+    background: var(--color-primary-light);
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  .hero__inner {
+    padding-top: 2rem;
+    padding-bottom: 2rem;
+  }
+
+  .hero__title {
+    font-size: 1.75rem;
+    margin: 0 0 0.5rem;
+  }
+
+  @media (min-width: 48rem) {
+    .hero__title {
+      font-size: 2.25rem;
+    }
+  }
+
+  .hero__text {
+    font-size: 1.2rem;
+    max-width: 50rem;
+    margin: 0 0 1rem;
+  }
+
+  .hero__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin: 0;
+  }
+</style>

@@ -1,0 +1,52 @@
+---
+import { breadcrumbsFor } from '@/data/navigation';
+import { href } from '@/lib/paths';
+
+interface Props {
+  currentPath: string;
+  currentTitle: string;
+}
+
+const { currentPath, currentTitle } = Astro.props;
+const trail = breadcrumbsFor(currentPath);
+const items = trail.filter((item) => item.path !== currentPath);
+---
+
+{currentPath !== '/' && (
+  <nav class="breadcrumbs" aria-label="Sie sind hier">
+    <ol>
+      {items.map((item) => (
+        <li>
+          <a href={href(item.path)}>{item.title}</a>
+        </li>
+      ))}
+      <li aria-current="page">{currentTitle}</li>
+    </ol>
+  </nav>
+)}
+
+<style>
+  .breadcrumbs {
+    font-size: 0.95rem;
+    margin-bottom: 1rem;
+  }
+
+  .breadcrumbs ol {
+    list-style: none;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.25rem;
+    margin: 0;
+    padding: 0;
+  }
+
+  .breadcrumbs li + li::before {
+    content: '›';
+    margin: 0 0.4rem;
+    color: var(--color-text-muted);
+  }
+
+  .breadcrumbs [aria-current='page'] {
+    color: var(--color-text-muted);
+  }
+</style>
