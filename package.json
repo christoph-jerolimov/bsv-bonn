@@ -18,25 +18,25 @@
     "astro": "astro"
   },
   "dependencies": {
-    "@astrojs/markdown-remark": "^7.3.3",
+    "@astrojs/markdown-remark": "^7.3.5",
     "@astrojs/sitemap": "^3.7.4",
-    "astro": "^7.4.0"
+    "astro": "^7.4.5"
   },
   "devDependencies": {
-    "@astrojs/check": "^0.9.10",
+    "@astrojs/check": "^0.9.12",
     "@commitlint/cli": "^21.2.4",
     "@commitlint/config-conventional": "^21.2.4",
     "@commitlint/types": "^21.2.3",
     "@types/hast": "^3.0.5",
-    "eslint": "^10.13.0",
+    "eslint": "^10.14.0",
     "eslint-plugin-astro": "^3.2.1",
     "eslint-plugin-jsx-a11y-x": "^0.2.0",
-    "html-validate": "^11.16.4",
+    "html-validate": "^11.18.0",
     "prettier": "^3.9.10",
-    "prettier-plugin-astro": "^1.1.1",
-    "typescript": "^5.9.0",
-    "typescript-eslint": "^8.71.2",
-    "vitest": "^5.0.5"
+    "prettier-plugin-astro": "^1.1.2",
+    "typescript": "^7.0.2",
+    "typescript-eslint": "^8.72.1",
+    "vitest": "^5.1.0"
   },
   "engines": {
     "node": ">=22"
